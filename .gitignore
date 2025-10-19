@@ -1,3 +1,4 @@
 configs/gdgrid_detection.yml
 log_dir
 output
+/bbox.json

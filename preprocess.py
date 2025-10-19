@@ -10,6 +10,7 @@ from tqdm import tqdm
 
 
 def train_val_test_split(dataset_path, df, train_ratio, val_ratio, new_edge):
+    label_replace = {"监护袖章(红only)": "badge"}
     info = {
         "description": "GuangDong grid detection dataset",
         "url": "https://tianchi.aliyun.com/competition/entrance/531897/information",
@@ -20,6 +21,7 @@ def train_val_test_split(dataset_path, df, train_ratio, val_ratio, new_edge):
         annotation = json.loads(df.iloc[i][5])
         for item in annotation["items"]:
             label = item["labels"]["标签"]
+            label = label_replace.get(label, label)
             if label_ids.get(label) is None:
                 label_ids[label] = len(label_ids)
     categories = [{"id": i, "name": label} for label, i in label_ids.items()]
@@ -64,6 +66,8 @@ def train_val_test_split(dataset_path, df, train_ratio, val_ratio, new_edge):
             )
 
             for item in annotation["items"]:
+                label = item["labels"]["标签"]
+                label = label_replace.get(label, label)
                 bbox = item["meta"]["geometry"]
                 bbox[0] = int(min(max(bbox[0], 0), width - 1) * ratio)
                 bbox[1] = int(min(max(bbox[1], 0), height - 1) * ratio)
@@ -82,6 +86,7 @@ def train_val_test_split(dataset_path, df, train_ratio, val_ratio, new_edge):
                         "iscrowd": 0,
                     }
                 )
+
         with open(osp.join(dataset_path, f"{split}.json"), "w") as f:
             json.dump(
                 {
@@ -91,7 +96,6 @@ def train_val_test_split(dataset_path, df, train_ratio, val_ratio, new_edge):
                     "categories": categories,
                 },
                 f,
-                ensure_ascii=False,
             )
 
     dataset_yml_content = f"""metric: COCO

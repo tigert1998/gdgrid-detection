@@ -1,7 +1,7 @@
 _BASE_: [
   'gdgrid_detection.yml',
   '../PaddleYOLO/configs/runtime.yml',
-  '../PaddleYOLO/configs/yolov10/_base_/optimizer_500e.yml',
+  'optimizer_100e.yml',
   '../PaddleYOLO/configs/yolov10/_base_/yolov10_cspdarknet.yml',
   '../PaddleYOLO/configs/yolov10/_base_/yolov10_reader.yml',
 ]

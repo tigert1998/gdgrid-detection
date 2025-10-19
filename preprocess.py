@@ -78,7 +78,7 @@ def train_val_test_split(dataset_path, df, train_ratio, val_ratio, new_edge):
                 w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
                 annotations.append(
                     {
-                        "id": i,
+                        "id": len(annotations),
                         "image_id": i,
                         "category_id": label_ids[label],
                         "bbox": [x, y, w, h],

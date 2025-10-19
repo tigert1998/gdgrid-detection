@@ -10,6 +10,11 @@ from tqdm import tqdm
 
 
 def train_val_test_split(dataset_path, df, train_ratio, val_ratio, new_edge):
+    info = {
+        "description": "GuangDong grid detection dataset",
+        "url": "https://tianchi.aliyun.com/competition/entrance/531897/information",
+    }
+
     label_ids = {}
     for i in range(len(df)):
         annotation = json.loads(df.iloc[i][5])
@@ -80,11 +85,13 @@ def train_val_test_split(dataset_path, df, train_ratio, val_ratio, new_edge):
         with open(osp.join(dataset_path, f"{split}.json"), "w") as f:
             json.dump(
                 {
+                    "info": info,
                     "images": images,
                     "annotations": annotations,
                     "categories": categories,
                 },
                 f,
+                ensure_ascii=False,
             )
 
     dataset_yml_content = f"""metric: COCO

@@ -1,0 +1,17 @@
+_BASE_: [
+  'gdgrid_detection.yml',
+  '../PaddleYOLO/configs/runtime.yml',
+  'optimizer_100e.yml',
+  '../PaddleYOLO/configs/yolov8/_base_/yolov8_cspdarknet.yml',
+  '../PaddleYOLO/configs/yolov8/_base_/yolov8_reader.yml',
+]
+depth_mult: 0.33
+width_mult: 0.50
+
+log_iter: 50
+snapshot_epoch: 10
+weights: output/yolov8_s_500e_coco/model_final
+
+
+TrainReader:
+  batch_size: 16

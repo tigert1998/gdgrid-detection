@@ -23,7 +23,7 @@ def train_val_test_split(dataset_path, df, train_ratio, val_ratio, new_edge):
             label = item["labels"]["标签"]
             label = label_replace.get(label, label)
             if label_ids.get(label) is None:
-                label_ids[label] = len(label_ids)
+                label_ids[label] = len(label_ids) + 1
     categories = [{"id": i, "name": label} for label, i in label_ids.items()]
 
     indices = list(range(len(df)))

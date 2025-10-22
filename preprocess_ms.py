@@ -23,7 +23,7 @@ def train_val_test_split(dataset_path, df, train_ratio, val_ratio, new_edge):
             label = item["labels"]["标签"]
             label = label_replace.get(label, label)
             if label_ids.get(label) is None:
-                label_ids[label] = len(label_ids)
+                label_ids[label] = len(label_ids) + 1
     categories = [{"id": i, "name": label} for label, i in label_ids.items()]
 
     indices = list(range(len(df)))
@@ -44,6 +44,10 @@ def train_val_test_split(dataset_path, df, train_ratio, val_ratio, new_edge):
         images = []
         annotations = []
 
+        os.makedirs(osp.join(ms_folder, "images", split), exist_ok=True)
+        os.makedirs(osp.join(ms_folder, "labels", split), exist_ok=True)
+        os.makedirs(osp.join(ms_folder, "annotations"), exist_ok=True)
+
         f = open(osp.join(ms_folder, f"{split}.txt"), "w")
         for index in range(len(split_indices)):
             f.write(
@@ -51,10 +55,6 @@ def train_val_test_split(dataset_path, df, train_ratio, val_ratio, new_edge):
                 + "\n"
             )
         f.close()
-
-        os.makedirs(osp.join(ms_folder, "images", split), exist_ok=True)
-        os.makedirs(osp.join(ms_folder, "labels", split), exist_ok=True)
-        os.makedirs(osp.join(ms_folder, "annotations"), exist_ok=True)
 
         for index, i in enumerate(tqdm(split_indices, desc=split)):
             annotation = json.loads(df.iloc[i][5])

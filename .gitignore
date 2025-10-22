@@ -4,3 +4,5 @@ log_dir
 output
 /bbox.json
 .vscode
+runs
+ckpts

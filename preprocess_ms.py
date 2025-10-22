@@ -103,7 +103,7 @@ def train_val_test_split(dataset_path, df, train_ratio, val_ratio, new_edge):
                 y = (y + h / 2) / new_height
                 w = w / new_width
                 h = h / new_height
-                f.write(f"{label_ids[label]} {x} {y} {w} {h}\n")
+                f.write(f"{label_ids[label] - 1} {x} {y} {w} {h}\n")
             f.close()
 
         with open(

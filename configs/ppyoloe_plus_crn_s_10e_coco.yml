@@ -1,5 +1,5 @@
 _BASE_: [
-  'gdgrid_detection.yml',
+  'dataset.yml',
   '../PaddleYOLO/configs/runtime.yml',
   'optimizer_ppyoloe_10e.yml',
   '../PaddleYOLO/configs/ppyoloe/_base_/ppyoloe_plus_crn.yml',

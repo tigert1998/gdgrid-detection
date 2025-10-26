@@ -1,5 +1,5 @@
 __BASE__: [
-  './gdgrid_detection_ms.yml',
+  './dataset_ms.yml',
   './hyp.scratch.low.yaml',
 ]
 

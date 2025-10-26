@@ -1,5 +1,5 @@
 _BASE_: [
-  'gdgrid_detection.yml',
+  'dataset.yml',
   '../PaddleYOLO/configs/runtime.yml',
   'optimizer_100e.yml',
   '../PaddleYOLO/configs/yolov10/_base_/yolov10_cspdarknet.yml',

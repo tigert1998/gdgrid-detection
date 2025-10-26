@@ -35,48 +35,36 @@ def train_val_test_split(dataset_path, df, train_ratio, val_ratio, new_edge):
     val_indices = indices[train_size : train_size + val_size]
     test_indices = indices[train_size + val_size :]
 
-    ms_folder = osp.join(dataset_path, "ms_coco")
+    resized_images_folder = osp.join(dataset_path, "resized_images")
+    os.makedirs(resized_images_folder, exist_ok=True)
     for split, split_indices in {
-        "train2017": train_indices,
-        "val2017": val_indices,
-        "test2017": test_indices,
+        "train": train_indices,
+        "val": val_indices,
+        "test": test_indices,
     }.items():
         images = []
         annotations = []
-
-        os.makedirs(osp.join(ms_folder, "images", split), exist_ok=True)
-        os.makedirs(osp.join(ms_folder, "labels", split), exist_ok=True)
-        os.makedirs(osp.join(ms_folder, "annotations"), exist_ok=True)
-
-        f = open(osp.join(ms_folder, f"{split}.txt"), "w")
-        for index in range(len(split_indices)):
-            f.write(
-                osp.realpath(osp.join(ms_folder, "images", split, f"{index:012}.jpg"))
-                + "\n"
-            )
-        f.close()
-
-        for index, i in enumerate(tqdm(split_indices, desc=split)):
+        for i in tqdm(split_indices, desc=split):
             annotation = json.loads(df.iloc[i][5])
             image_path = df.iloc[i][4]
+            image_name = osp.basename(image_path)
             image = cv2.imread(osp.join(dataset_path, image_path))
             height, width, _ = image.shape
             ratio = min(1, new_edge / min(height, width))
             new_height = int(height * ratio)
             new_width = int(width * ratio)
             image = cv2.resize(image, (new_width, new_height))
-            cv2.imwrite(osp.join(ms_folder, "images", split, f"{index:012}.jpg"), image)
+            cv2.imwrite(osp.join(resized_images_folder, image_name), image)
 
             images.append(
                 {
-                    "id": index,
+                    "id": i,
                     "width": new_width,
                     "height": new_height,
-                    "file_name": f"{index:012}.jpg",
+                    "file_name": image_name,
                 }
             )
 
-            f = open(osp.join(ms_folder, "labels", split, f"{index:012}.txt"), "w")
             for item in annotation["items"]:
                 label = item["labels"]["标签"]
                 label = label_replace.get(label, label)
@@ -91,7 +79,7 @@ def train_val_test_split(dataset_path, df, train_ratio, val_ratio, new_edge):
                 annotations.append(
                     {
                         "id": len(annotations),
-                        "image_id": index,
+                        "image_id": i,
                         "category_id": label_ids[label],
                         "bbox": [x, y, w, h],
                         "area": w * h,
@@ -99,16 +87,7 @@ def train_val_test_split(dataset_path, df, train_ratio, val_ratio, new_edge):
                     }
                 )
 
-                x = (x + w / 2) / new_width
-                y = (y + h / 2) / new_height
-                w = w / new_width
-                h = h / new_height
-                f.write(f"{label_ids[label] - 1} {x} {y} {w} {h}\n")
-            f.close()
-
-        with open(
-            osp.join(ms_folder, "annotations", f"instances_{split}.json"), "w"
-        ) as f:
+        with open(osp.join(dataset_path, f"{split}.json"), "w") as f:
             json.dump(
                 {
                     "info": info,
@@ -119,30 +98,35 @@ def train_val_test_split(dataset_path, df, train_ratio, val_ratio, new_edge):
                 f,
             )
 
-    label_names_array_str = (
-        "[" + ", ".join(map(lambda s: f'"{s}"', label_ids.keys())) + "]"
-    )
-    dataset_yml_content = f"""data:
-  dataset_name: gdgrid_detection
+    dataset_yml_content = f"""metric: COCO
+num_classes: {len(label_ids)}
 
-  train_set: {osp.realpath(osp.join(ms_folder, "train2017.txt"))}
-  val_set: {osp.realpath(osp.join(ms_folder, "val2017.txt"))}
+TrainDataset:
+  name: COCODataSet
+  image_dir: {resized_images_folder}
+  anno_path: {osp.join(dataset_path, "train.json")}
+  dataset_dir: {dataset_path}
+  data_fields: ['image', 'gt_bbox', 'gt_class', 'is_crowd']
 
-  nc: {len(label_ids)}
+EvalDataset:
+  name: COCODataSet
+  image_dir: {resized_images_folder}
+  anno_path: {osp.join(dataset_path, "val.json")}
+  dataset_dir: {dataset_path}
 
-  names: {label_names_array_str}
-
-  train_transforms: []
-  test_transforms: []
+TestDataset:
+  name: ImageFolder
+  anno_path: {osp.join(dataset_path, "test.json")}
+  dataset_dir: {dataset_path}
 """
 
-    with open("configs/gdgrid_detection_ms.yml", "w") as f:
+    with open("configs-dataset/gdgrid_detection.yml", "w") as f:
         f.write(dataset_yml_content)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        "GuangDong grid detection dataset preprocess for MindSpore"
+        "GuangDong grid detection dataset preprocess for PaddlePaddle"
     )
     parser.add_argument("--dataset-path", type=str)
     args = parser.parse_args()

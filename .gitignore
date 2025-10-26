@@ -1,5 +1,4 @@
-configs/gdgrid_detection.yml
-configs/gdgrid_detection_ms.yml
+configs-dataset
 log_dir
 output
 /bbox.json

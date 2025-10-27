@@ -5,3 +5,4 @@ output
 .vscode
 runs
 ckpts
+configs/dataset.yml

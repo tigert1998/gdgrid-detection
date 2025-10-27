@@ -62,6 +62,7 @@ def train_val_test_split(
                     if label_ids.get(label) is None:
                         label_ids[label] = len(label_ids) + 1
                 pbar.update(1)
+    pbar.close()
 
     categories = [
         {"name": label, "id": label_id} for label, label_id in label_ids.items()
@@ -85,14 +86,14 @@ def train_val_test_split(
         annotations = []
 
         for index in tqdm(split_indices, desc=split):
-            ratio, height, width = instances[index][2:5]
+            ratio, width, height = instances[index][2:5]
 
             images.append(
                 {
                     "id": index,
                     "width": width,
                     "height": height,
-                    "filename": osp.basename(instances[index][1]),
+                    "file_name": osp.basename(instances[index][1]),
                 }
             )
 
@@ -119,6 +120,17 @@ def train_val_test_split(
                         "iscrowd": 0,
                     }
                 )
+                if label in ["aqd_gfsy", "aqd_dggy"]:
+                    annotations.append(
+                        {
+                            "id": len(annotations),
+                            "image_id": index,
+                            "category_id": label_ids["aqd_zqpd"],
+                            "bbox": [x, y, w, h],
+                            "area": w * h,
+                            "iscrowd": 0,
+                        }
+                    )
 
         with open(osp.join(dataset_path, f"{split}.json"), "w") as f:
             json.dump(
@@ -129,6 +141,7 @@ def train_val_test_split(
                     "annotations": annotations,
                 },
                 f,
+                indent=4,
             )
 
     dataset_yml_content = f"""metric: COCO
@@ -163,4 +176,4 @@ if __name__ == "__main__":
     )
     parser.add_argument("--dataset-path", type=str)
     args = parser.parse_args()
-    train_val_test_split(args.dataset_path, 0.8, 0.1)
+    train_val_test_split(args.dataset_path, 0.95, 0.05)

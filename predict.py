@@ -32,13 +32,14 @@ class Predictor:
 
         self.trainer.model.eval()
 
-        outs = []
+        ret = []
         for data in tqdm(loader):
             out = self.trainer.model(data)
             out["im_id"] = data["im_id"]
             infer_results = get_infer_results(out, clsid2catid)
             im_id = data["im_id"].item()
 
+            outs = []
             for infer_result in infer_results["bbox"]:
                 assert im_id == infer_result["image_id"]
                 catid, bbox, score = (
@@ -51,8 +52,9 @@ class Predictor:
                 if score >= 0.5:
                     x, y, w, h = bbox
                     outs.append([catid2name[catid], x, y, x + w, y + h, score])
+            ret.append(outs)
 
-        return outs
+        return ret
 
 
 if __name__ == "__main__":
@@ -64,5 +66,5 @@ if __name__ == "__main__":
 
     predictor = Predictor()
     predictor.init_model(args.config, args.params)
-    outs = predictor.predict([args.image])
-    print(outs)
+    predict_results = predictor.predict([args.image])
+    print(predict_results[0])

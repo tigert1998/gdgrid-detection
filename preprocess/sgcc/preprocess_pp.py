@@ -131,6 +131,17 @@ def train_val_test_split(
                             "iscrowd": 0,
                         }
                     )
+                elif label in ["aqd_zqpd"]:
+                    annotations.append(
+                        {
+                            "id": len(annotations),
+                            "image_id": index,
+                            "category_id": label_ids["aqd_gfsy"],
+                            "bbox": [x, y, w, h],
+                            "area": w * h,
+                            "iscrowd": 0,
+                        }
+                    )
 
         with open(osp.join(dataset_path, f"{split}.json"), "w") as f:
             json.dump(

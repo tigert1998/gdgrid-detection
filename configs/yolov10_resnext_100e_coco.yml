@@ -1,0 +1,36 @@
+_BASE_: [
+  'dataset.yml',
+  '../PaddleYOLO/configs/runtime.yml',
+  'optimizer_100e.yml',
+  '../PaddleYOLO/configs/yolov10/_base_/yolov10_cspdarknet.yml',
+  '../PaddleYOLO/configs/yolov10/_base_/yolov10_reader.yml',
+]
+depth_mult: 0.33
+width_mult: 0.50
+
+log_iter: 50
+snapshot_epoch: 10
+weights: output/yolov10_resnext_100e_coco/best_model
+
+LearningRate:
+  base_lr: 0.001
+
+YOLOv10:
+  backbone: ConvNeXt
+  neck: YOLOv10CSPPAN
+  yolo_head: YOLOv10Head
+  post_process: ~
+
+ConvNeXt:
+  arch: 'tiny'
+  drop_path_rate: 0.4
+  layer_scale_init_value: 1.0
+  return_idx: [1, 2, 3]
+
+YOLOv10CSPPAN:
+  fpn_use_c2fcib: [false, false]
+  pan_use_c2fcib: [false, true]
+  use_large_kernel: true
+
+TrainReader:
+  batch_size: 4

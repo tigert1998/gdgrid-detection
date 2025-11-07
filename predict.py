@@ -6,6 +6,7 @@ from tqdm import tqdm
 if "PaddleYOLO" not in sys.path:
     sys.path.append("PaddleYOLO")
 
+import paddle
 from ppdet.core.workspace import load_config, create
 from ppdet.engine import Trainer
 from ppdet.data.source.category import get_categories
@@ -34,7 +35,8 @@ class Predictor:
 
         ret = []
         for data in tqdm(loader):
-            out = self.trainer.model(data)
+            with paddle.no_grad():
+                out = self.trainer.model(data)
             out["im_id"] = data["im_id"]
             infer_results = get_infer_results(out, clsid2catid)
             im_id = data["im_id"].item()
